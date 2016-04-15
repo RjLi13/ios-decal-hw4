@@ -130,7 +130,20 @@ class PlayerViewController: UIViewController {
         let track = tracks[currentIndex]
         let url = NSURL(string: "https://api.soundcloud.com/tracks/\(track.id)/stream?client_id=\(clientID)")!
         // FILL ME IN
-    
+        /* List to check whether song has been played before? */
+        let song = AVPlayerItem(URL: url)
+        player.replaceCurrentItemWithPlayerItem(song)
+        
+        if player.rate == 0.0 {
+            if player.currentItem!.status == .ReadyToPlay {
+                player.play()
+                sender.selected = false
+            }
+        } else if player.rate == 1.0 {
+            player.pause()
+            sender.selected = true
+        }
+        
     }
     
     /* 
@@ -140,7 +153,19 @@ class PlayerViewController: UIViewController {
      * Remember to update the currentIndex
      */
     func nextTrackTapped(sender: UIButton) {
-    
+        if currentIndex < tracks.count {
+            let track = tracks[currentIndex]
+            let url = track.getURL()
+            let song = AVPlayerItem(URL: url)
+            player.replaceCurrentItemWithPlayerItem(song)
+            if player.rate == 1.0 {
+                if player.currentItem!.status == .ReadyToPlay {
+                    player.play()
+                }
+            }
+            currentIndex = currentIndex + 1
+        }
+        
     }
 
     /*
@@ -154,7 +179,22 @@ class PlayerViewController: UIViewController {
      */
 
     func previousTrackTapped(sender: UIButton) {
-    
+        if player.currentTime().seconds > 3 {
+            player.seekToTime(CMTime(seconds: 0.0, preferredTimescale: 1))
+        } else {
+            if currentIndex >= 0 {
+                let track = tracks[currentIndex]
+                let url = track.getURL()
+                let song = AVPlayerItem(URL: url)
+                player.replaceCurrentItemWithPlayerItem(song)
+                if player.rate == 1.0 {
+                    if player.currentItem!.status == .ReadyToPlay {
+                        player.play()
+                    }
+                }
+                currentIndex = currentIndex - 1
+            }
+        }
     }
     
     
