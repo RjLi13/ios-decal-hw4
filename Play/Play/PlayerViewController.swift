@@ -131,19 +131,25 @@ class PlayerViewController: UIViewController {
         let url = NSURL(string: "https://api.soundcloud.com/tracks/\(track.id)/stream?client_id=\(clientID)")!
         // FILL ME IN
         /* List to check whether song has been played before? */
-        let song = AVPlayerItem(URL: url)
-        player.replaceCurrentItemWithPlayerItem(song)
         
-        if player.rate == 0.0 {
-            if player.currentItem!.status == .ReadyToPlay {
-                player.play()
-                sender.selected = false
-            }
-        } else if player.rate == 1.0 {
-            player.pause()
-            sender.selected = true
+        if player.currentItem == nil {
+            let song = AVPlayerItem(URL: url)
+            player.replaceCurrentItemWithPlayerItem(song)
+           
         }
         
+        print(player.currentItem!.status == .ReadyToPlay)
+        
+        if sender.selected == false {
+            if player.currentItem!.status == .ReadyToPlay {
+                player.play()
+            
+            }
+        } else if sender.selected == true {
+            player.pause()
+           
+        }
+        sender.selected = !sender.selected
     }
     
     /* 
@@ -153,17 +159,22 @@ class PlayerViewController: UIViewController {
      * Remember to update the currentIndex
      */
     func nextTrackTapped(sender: UIButton) {
-        if currentIndex < tracks.count {
+        if currentIndex < tracks.count - 1 {
+            currentIndex = currentIndex + 1
+            loadTrackElements()
+            var songPlayed = false
+            if player.rate == 1.0 {
+                songPlayed = true
+            }
             let track = tracks[currentIndex]
             let url = track.getURL()
             let song = AVPlayerItem(URL: url)
             player.replaceCurrentItemWithPlayerItem(song)
-            if player.rate == 1.0 {
+            if songPlayed == true {
                 if player.currentItem!.status == .ReadyToPlay {
                     player.play()
                 }
             }
-            currentIndex = currentIndex + 1
         }
         
     }
@@ -182,17 +193,22 @@ class PlayerViewController: UIViewController {
         if player.currentTime().seconds > 3 {
             player.seekToTime(CMTime(seconds: 0.0, preferredTimescale: 1))
         } else {
-            if currentIndex >= 0 {
+            if currentIndex > 0 {
+                currentIndex = currentIndex - 1
+                loadTrackElements()
+                var songPlayed = false
+                if player.rate == 1.0 {
+                    songPlayed = true
+                }
                 let track = tracks[currentIndex]
                 let url = track.getURL()
                 let song = AVPlayerItem(URL: url)
                 player.replaceCurrentItemWithPlayerItem(song)
-                if player.rate == 1.0 {
+                if songPlayed == true {
                     if player.currentItem!.status == .ReadyToPlay {
                         player.play()
                     }
                 }
-                currentIndex = currentIndex - 1
             }
         }
     }
